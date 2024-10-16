@@ -1,11 +1,15 @@
 package com.backendcore.backendcore.v1.auth;
 
-import com.backendcore.backendcore.v1.config.JwtService;
+import com.backendcore.backendcore.v1.config.auth.JwtService;
+import com.backendcore.backendcore.v1.dto.front.request.LoginRequest;
+import com.backendcore.backendcore.v1.dto.front.request.RegisterRequest;
 import com.backendcore.backendcore.v1.dto.front.response.UserResponse;
 import com.backendcore.backendcore.v1.exception.NotFoundException;
 import com.backendcore.backendcore.v1.models.AdminLogin;
+import com.backendcore.backendcore.v1.models.Clinic;
 import com.backendcore.backendcore.v1.models.User;
 import com.backendcore.backendcore.v1.repository.AdminLoginRepository;
+import com.backendcore.backendcore.v1.repository.ClinicRepository;
 import com.backendcore.backendcore.v1.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,16 +35,10 @@ public class AuthService {
     private final AuthenticationManager manager;
     @Autowired
     private final AdminLoginRepository adminLoginRepository;
+    @Autowired
+    private final ClinicRepository clinicRepository;
 
     public UserResponse registerUser(RegisterRequest request) {
-        return register(request, 1); // User level for normal users
-    }
-
-    public UserResponse registerAdmin(RegisterRequest request) {
-        return register(request, 99); // User level for admin
-    }
-
-    private UserResponse register(RegisterRequest request, int userLevel) {
         UserResponse res = new UserResponse();
         try {
             if (request.getFirstName() == null || request.getFirstName().isEmpty() ||
@@ -62,11 +60,64 @@ public class AuthService {
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
                     .email(request.getEmail())
-                    .userLevel(userLevel)
+                    .userLevel(1)
                     .password(encoder.encode(request.getPassword()))
                     .dateCreated(new Timestamp(System.currentTimeMillis()))
                     .lastLogin(new Timestamp(System.currentTimeMillis()))
-                    .active(1)
+                    .status("active")
+                    .build();
+
+            repository.save(user);
+
+            String jwtToken = jwtService.generateToken(user);
+            user.setToken(jwtToken);
+            user.setLastLogin(new Timestamp(System.currentTimeMillis()));
+
+            repository.save(user);
+
+            res.setFirstName(user.getFirstName());
+            res.setLastName(user.getLastName());
+            res.setEmail(user.getEmail());
+            res.setTokenType("Bearer");
+            res.setAccessToken(jwtToken);
+
+            res.setMessage("User Saved successfully");
+            res.setStatusCode(200);
+        } catch (Exception e) {
+            res.setStatusCode(500);
+            res.setMessage("Something went wrong. Contact the administrator: ");
+        }
+        return res;
+    }
+
+    public UserResponse registerAdmin(RegisterRequest request) {
+        UserResponse res = new UserResponse();
+        try {
+            if (request.getFirstName() == null || request.getFirstName().isEmpty() ||
+                    request.getLastName() == null || request.getLastName().isEmpty() ||
+                    request.getPassword() == null || request.getPassword().isEmpty() ||
+                    request.getEmail() == null || request.getEmail().isEmpty()
+            ) {
+                res.setStatusCode(400);
+                res.setMessage("Some of the fields is empty");
+                return res;
+            }
+            if (repository.findByEmail(request.getEmail()) != null) {
+                res.setMessage("The email address is already in use. Please choose a different one.");
+                res.setStatusCode(409);
+                return res;
+            }
+            request.setEmail(request.getEmail().toLowerCase());
+
+            User user = User.builder()
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .userLevel(99)
+                    .password(encoder.encode(request.getPassword()))
+                    .dateCreated(new Timestamp(System.currentTimeMillis()))
+                    .lastLogin(new Timestamp(System.currentTimeMillis()))
+                    .status("active")
                     .build();
 
             repository.save(user);
@@ -123,6 +174,7 @@ public class AuthService {
             }
 
             var user = repository.findByEmail(request.getEmail());
+            adminLogin.setClinicId(user.getClinicId());
             if (user == null || (isAdmin && (user.getUserLevel() != 99 && user.getUserLevel() != 100))) {
                 res.setStatusCode(user == null ? 401 : 403);
                 res.setMessage(user == null ? "Invalid email or password" : "You are not authorized to access this resource");
@@ -173,7 +225,6 @@ public class AuthService {
             return res;
         }
     }
-
 
     private String getServerIp() {
         String publicIpUrl = "http://api.ipify.org";

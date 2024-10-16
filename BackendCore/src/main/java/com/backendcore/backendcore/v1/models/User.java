@@ -31,7 +31,8 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private Integer userLevel;
-    private Integer active;
+    private String status;
+    private Integer clinicId;
     @Column(name = "date_created", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp dateCreated;
     private Timestamp dateUpdated;

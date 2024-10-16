@@ -1,4 +1,4 @@
-package com.backendcore.backendcore.v1.config;
+package com.backendcore.backendcore.v1.config.auth;
 
 import com.backendcore.backendcore.v1.models.User;
 import com.backendcore.backendcore.v1.repository.UserRepository;

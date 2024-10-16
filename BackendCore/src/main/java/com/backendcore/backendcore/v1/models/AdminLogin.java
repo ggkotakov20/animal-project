@@ -24,6 +24,7 @@ public class AdminLogin {
     private Timestamp date;
     private String browser;
     private Integer siteId;
+    private Integer clinicId;
     private Integer successfully;
     private Integer banned;
 
@@ -89,5 +90,13 @@ public class AdminLogin {
 
     public void setBanned(Integer banned) {
         this.banned = banned;
+    }
+
+    public Integer getClinicId() {
+        return clinicId;
+    }
+
+    public void setClinicId(Integer clinicId) {
+        this.clinicId = clinicId;
     }
 }

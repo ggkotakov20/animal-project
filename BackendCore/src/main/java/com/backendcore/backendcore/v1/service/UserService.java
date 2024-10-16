@@ -1,6 +1,6 @@
 package com.backendcore.backendcore.v1.service;
 
-import com.backendcore.backendcore.v1.config.JwtService;
+import com.backendcore.backendcore.v1.config.auth.JwtService;
 import com.backendcore.backendcore.v1.dto.front.response.UserResponse;
 import com.backendcore.backendcore.v1.models.User;
 import com.backendcore.backendcore.v1.repository.UserRepository;

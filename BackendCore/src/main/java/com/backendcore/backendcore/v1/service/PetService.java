@@ -1,10 +1,12 @@
 package com.backendcore.backendcore.v1.service;
 
-import com.backendcore.backendcore.v1.config.JwtService;
+import com.backendcore.backendcore.v1.config.auth.JwtService;
 import com.backendcore.backendcore.v1.dto.front.request.UserPetRequest;
 import com.backendcore.backendcore.v1.dto.front.response.UserPetResponse;
+import com.backendcore.backendcore.v1.models.Clinic;
 import com.backendcore.backendcore.v1.models.User;
 import com.backendcore.backendcore.v1.models.UserPet;
+import com.backendcore.backendcore.v1.repository.ClinicRepository;
 import com.backendcore.backendcore.v1.repository.UserPetRepository;
 import com.backendcore.backendcore.v1.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +22,14 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class PetService {
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private UserPetRepository userPetRepository;
+    @Autowired
+    private ClinicRepository clinicRepository;
     @Autowired
     private JwtService jwtService;
 
@@ -36,12 +37,22 @@ public class PetService {
 
     private UserPetResponse mapToResponse(UserPet pet)  {
         UserPetResponse response = new UserPetResponse();
+        Optional<Clinic> optClinic = clinicRepository.findById(pet.getClinicId());
+
+        if(optClinic.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Clinic not found");
+        }
+
+        Clinic clinic = optClinic.get();
+
         response.setId(pet.getId());
         response.setName(pet.getName());
         response.setBreed(pet.getBreed());
         response.setAnimalType(pet.getAnimalType());
         response.setDateCreated(pet.getDateCreated().toString());
         response.setBirthday(pet.getBirthday() != null ? pet.getBirthday().toString() : null);
+        response.setClinic(clinic.getName());
+        response.setDateAdded(pet.getDateAdded() != null ? pet.getDateAdded().toString() : null);
         return response;
     }
 
@@ -67,7 +78,7 @@ public class PetService {
         return pet;
     }
 
-    public ResponseEntity<List<UserPetResponse>> getAllUserPets(String authorizationHeader) {
+    public ResponseEntity<List<UserPetResponse>> getAllPetsOnUser(String authorizationHeader) {
         try {
             User user = jwtService.extractUser(authorizationHeader);
 
@@ -90,7 +101,7 @@ public class PetService {
         }
     }
 
-    public ResponseEntity<UserPetResponse> getUserPetById(String authorizationHeader, int id) {
+    public ResponseEntity<UserPetResponse> getPetByIdForUser(String authorizationHeader, int id) {
         User user = jwtService.extractUser(authorizationHeader);
 
         Optional<UserPet> optionalUserPet = userPetRepository.findById(id);
@@ -100,6 +111,19 @@ public class PetService {
         }
 
         return ResponseEntity.ok(mapToResponse(optionalUserPet.get()));
+    }
+
+    public ResponseEntity<List<UserPetResponse>> getPetsFromAdminsClinic(String authorizationHeader){
+        User user = jwtService.extractUser(authorizationHeader);
+
+        Optional<List<UserPet>> petsOpt = userPetRepository.findByClinicId(user.getClinicId());
+        List<UserPet> pets = petsOpt.orElse(new ArrayList<>());
+
+        List<UserPetResponse> response = pets.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<UserPetResponse> createPet(String authorizationHeader, UserPetRequest request) {
@@ -165,6 +189,21 @@ public class PetService {
 
         UserPet pet = optionalUserPet.get();
         pet.setActive(1);
+        userPetRepository.save(pet);
+
+        return ResponseEntity.ok(mapToResponse(pet));
+    }
+
+    public ResponseEntity<UserPetResponse> addPetToClinic(String authorizationHeader, Integer id) {
+        User user = jwtService.extractUser(authorizationHeader);
+
+        Optional<UserPet> optPet = userPetRepository.findById(id);
+        if (optPet.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found");
+        }
+
+        UserPet pet = optPet.get();
+        pet.setClinicId(user.getClinicId());
         userPetRepository.save(pet);
 
         return ResponseEntity.ok(mapToResponse(pet));

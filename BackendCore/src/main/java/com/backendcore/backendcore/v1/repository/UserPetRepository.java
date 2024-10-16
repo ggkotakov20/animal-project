@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface UserPetRepository extends JpaRepository<UserPet, Integer> {
     Optional<List<UserPet>> findByOwnerId(int ownerId);
+    Optional<List<UserPet>> findByClinicId(int clinicId);
 }

@@ -1,5 +1,6 @@
 package com.backendcore.backendcore.v1.config;
 
+import com.backendcore.backendcore.v1.config.auth.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class SecurityConfiguration {
     private final LogoutHandler logoutHandler;
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/**",
+            "/api/v1/admin/auth/**",
             "/online",
             "/api/v1/images/**",
             "/v2/api-docs",

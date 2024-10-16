@@ -27,6 +27,8 @@ public class UserPet {
     private LocalDate birthday;
     private Integer active;
     private Timestamp dateCreated;
+    private Integer clinicId;
+    private Timestamp dateAdded;
 
     public Integer getId() {
         return id;
@@ -90,5 +92,21 @@ public class UserPet {
 
     public void setActive(Integer active) {
         this.active = active;
+    }
+
+    public Integer getClinicId() {
+        return clinicId;
+    }
+
+    public void setClinicId(Integer clinicId) {
+        this.clinicId = clinicId;
+    }
+
+    public Timestamp getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(Timestamp dateAdded) {
+        this.dateAdded = dateAdded;
     }
 }
