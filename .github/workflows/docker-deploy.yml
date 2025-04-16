@@ -18,6 +18,11 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Debug SSH Agent
+      run: |
+        ssh-add -l || echo "No SSH keys found"
+        ssh -v -o StrictHostKeyChecking=no deploy-user@server.kremito.com echo "SSH connection test successful"
+
     - name: Add SSH host to known hosts
       run: |
         mkdir -p ~/.ssh
@@ -25,7 +30,7 @@ jobs:
 
     - name: Deploy code to server
       run: |
-        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com << 'EOF'
+        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com <<'EOF'
           echo "Starting deployment"
           cd /opt/animal-project || exit
           echo "Pulled latest code"
@@ -34,7 +39,7 @@ jobs:
           echo "Building project"
           mvn clean package || exit
           echo "Building Docker image"
-          cd ..
+          cd .. 
           docker build -t animal-project . || exit
           echo "Stopping existing container"
           docker stop animal-project || true
