@@ -40,6 +40,6 @@ jobs:
           docker stop animal-project || true
           docker rm animal-project || true
           echo "Running new container"
-          docker run -d -p 8000:8000 --name animal-project --restart always animal-project || exit
+          docker run -d -p 8080:8080 --name animal-project --restart always animal-project || exit
           echo "Deployment complete"
         EOF
