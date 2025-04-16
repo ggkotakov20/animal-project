@@ -13,6 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Decode SSH private key
+      run: echo "$SSH_PRIVATE_KEY" | base64 --decode > ~/.ssh/id_ed25519
+
+
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.9.0
       with:
