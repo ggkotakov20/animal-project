@@ -1,0 +1,45 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Add SSH host to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H server.kremito.com >> ~/.ssh/known_hosts
+
+    - name: Deploy code to server
+      run: |
+        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com << 'EOF'
+          echo "Starting deployment"
+          cd /opt/animal-project || exit
+          echo "Pulled latest code"
+          git pull origin main || exit
+          cd animal-project || exit
+          echo "Building project"
+          mvn clean package || exit
+          echo "Building Docker image"
+          cd ..
+          docker build -t animal-project . || exit
+          echo "Stopping existing container"
+          docker stop animal-project || true
+          docker rm animal-project || true
+          echo "Running new container"
+          docker run -d -p 8000:8000 --name animal-project --restart always animal-project || exit
+          echo "Deployment complete"
+        EOF
