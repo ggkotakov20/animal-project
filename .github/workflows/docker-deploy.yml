@@ -25,12 +25,12 @@ jobs:
 
     - name: Deploy code to server
       run: |
-        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com << 'EOF'
+        ssh -o StrictHostKeyChecking=no github-deploy-user@server.kremito.com << 'EOF'
           echo "Starting deployment"
           cd /opt/animal-project || exit
           echo "Pulled latest code"
           git pull origin main || exit
-          cd animal-project || exit
+          cd BackendCore || exit
           echo "Building project"
           mvn clean package || exit
           echo "Building Docker image"
