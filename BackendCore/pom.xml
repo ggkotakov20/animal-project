@@ -30,6 +30,11 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>io.sentry</groupId>-->
+<!--            <artifactId>sentry-spring-boot-starter</artifactId>-->
+<!--            <version>7.12.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -106,6 +111,26 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>io.sentry</groupId>
+                <artifactId>sentry-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <debugSentryCli>true</debugSentryCli>
+                    <org>financetracker</org>
+                    <project>finance-tracker</project>
+                    <authToken>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</authToken>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>uploadSourceBundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
