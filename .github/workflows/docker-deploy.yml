@@ -13,19 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Decode SSH private key
-      run: echo "$SSH_PRIVATE_KEY" | base64 --decode > ~/.ssh/id_ed25519
-
-
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Debug SSH Agent
-      run: |
-        ssh-add -l || echo "No SSH keys found"
-        ssh -v -o StrictHostKeyChecking=no deploy-user@server.kremito.com echo "SSH connection test successful"
 
     - name: Add SSH host to known hosts
       run: |
@@ -34,16 +25,16 @@ jobs:
 
     - name: Deploy code to server
       run: |
-        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com <<'EOF'
+        ssh -o StrictHostKeyChecking=no deploy-user@server.kremito.com << 'EOF'
           echo "Starting deployment"
           cd /opt/animal-project || exit
           echo "Pulled latest code"
           git pull origin main || exit
-          cd animal-project || exit
+          cd BackendCore || exit
           echo "Building project"
           mvn clean package || exit
           echo "Building Docker image"
-          cd .. 
+          cd ..
           docker build -t animal-project . || exit
           echo "Stopping existing container"
           docker stop animal-project || true
