@@ -118,8 +118,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <debugSentryCli>true</debugSentryCli>
-                    <org>financetracker</org>
-                    <project>finance-tracker</project>
+                    <org>Find-perfect-pet</org>
+                    <project>java-spring-boot</project>
                     <authToken>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</authToken>
                 </configuration>
                 <executions>
