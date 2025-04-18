@@ -1,7 +1,9 @@
 package com.backendcore.backendcore.v1.customer.auth;
 
 import com.backendcore.backendcore.v1.customer.models.User;
+import com.backendcore.backendcore.v1.customer.models.ValidToken;
 import com.backendcore.backendcore.v1.customer.repository.UserRepository;
+import com.backendcore.backendcore.v1.customer.repository.ValidTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
     private final UserRepository userRepository;
+    private final ValidTokenRepository validTokenRepository;
 
     @Override
     public void logout(
@@ -30,9 +33,20 @@ public class LogoutService implements LogoutHandler {
 
 
         jwt = authHeader.substring(7);
-
         User user = userRepository.findByToken(jwt);
-        user.setToken(null);
-        userRepository.save(user);
+
+        if (user == null) {
+            ValidToken perpetualToken = validTokenRepository.findByToken(jwt);
+
+            if(perpetualToken == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+                return;
+            }
+
+            validTokenRepository.delete(perpetualToken);
+        } else {
+            user.setToken(null);
+            userRepository.save(user);
+        }
     }
 }

@@ -25,6 +25,8 @@ public class UserPet {
     private String animalType;
     private String breed;
     private LocalDate birthday;
+    private String gender;
+    private Double weightKg;
     private Integer active;
     private Timestamp dateCreated;
     private Integer clinicId;
@@ -83,6 +85,22 @@ public class UserPet {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Double getWeightKg() {
+        return weightKg;
+    }
+
+    public void setWeightKg(Double weightKg) {
+        this.weightKg = weightKg;
     }
 
     public Integer getActive() {

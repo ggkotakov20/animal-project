@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/customer/user/pets")
+@RequestMapping("/api/v1/user/pets")
 @Tag(name = "User controller for his pets")
 public class UserPetController {
     private final PetService petService;

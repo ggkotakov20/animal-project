@@ -8,5 +8,7 @@ public class UserPetRequest {
     private String name;
     private String animalType;
     private String breed;
+    private String gender;
+    private Double weight;
     private String birthday;
 }

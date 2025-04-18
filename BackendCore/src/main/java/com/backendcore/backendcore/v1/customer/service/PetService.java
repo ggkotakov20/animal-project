@@ -62,6 +62,9 @@ public class PetService {
         }
 
         response.setBirthday(pet.getBirthday() != null ? pet.getBirthday().format(Format.BIRTHDAY_FORMATTER) : null);
+        response.setGender(pet.getGender());
+        response.setWeight(pet.getWeightKg());
+        response.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBaHv3Xqc_TSd3ThjKzPMEqaY_R8WwH3jOsg&s");
 
         return response;
     }
@@ -85,6 +88,8 @@ public class PetService {
                     .breed(request.getBreed())
                     .dateCreated(new Timestamp(System.currentTimeMillis())) // Set dateCreated only for new pets
                     .birthday(birthday)
+                    .weightKg(request.getWeight())
+                    .gender(request.getGender())
                     .active(1)
                     .build();
         } else {
@@ -100,6 +105,8 @@ public class PetService {
             pet.setAnimalType(request.getAnimalType());
             pet.setBreed(request.getBreed());
             pet.setBirthday(birthday);
+            pet.setGender(request.getGender());
+            pet.setWeightKg(request.getWeight());
         }
 
         return pet;

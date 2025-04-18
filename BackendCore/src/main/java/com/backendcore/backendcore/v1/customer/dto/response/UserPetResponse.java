@@ -14,5 +14,8 @@ public class UserPetResponse {
     public String breed;
     public String dateCreated;
     public String birthday;
+    public String gender;
+    public Double weight;
     public String clinic;
+    public String image;
 }
